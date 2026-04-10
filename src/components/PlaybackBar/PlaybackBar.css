@@ -1,0 +1,89 @@
+.playback-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px 12px;
+    border-top: 1px solid var(--edge);
+    background: linear-gradient(180deg, var(--surface-raised) 0%, var(--surface) 100%);
+    flex-shrink: 0;
+}
+
+.playback-bar__play,
+.playback-bar__restart {
+    background: var(--surface-card);
+    border: 1px solid var(--edge);
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    color: var(--signal);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.playback-bar__play:hover,
+.playback-bar__restart:hover {
+    border-color: var(--edge-strong);
+    box-shadow: 0 0 0 1px rgba(255, 176, 32, 0.2);
+}
+
+.playback-bar__play:active {
+    transform: scale(0.97);
+}
+
+.playback-bar__play-icon {
+    display: block;
+    color: inherit;
+}
+
+.playback-bar__restart-img {
+    transform: scaleX(-1);
+    display: block;
+    opacity: 0.9;
+    filter: brightness(0) saturate(100%) invert(77%) sepia(61%) saturate(1800%) hue-rotate(359deg)
+        brightness(103%) contrast(101%);
+}
+
+.playback-bar__scrubber {
+    flex: 1;
+    min-width: 120px;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--edge);
+    outline: none;
+    margin: 0 4px;
+}
+
+.playback-bar__scrubber::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background: var(--signal);
+    cursor: pointer;
+    box-shadow: 0 0 0 2px var(--surface);
+}
+
+.playback-bar__scrubber::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background: var(--signal);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 0 2px var(--surface);
+}
+
+.playback-bar__time {
+    color: var(--fg);
+    min-width: 100px;
+    font-size: 12px;
+    font-family: var(--mono);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    text-align: right;
+    opacity: 0.92;
+}

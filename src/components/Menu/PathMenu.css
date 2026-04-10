@@ -1,0 +1,148 @@
+.path-menu-divider {
+    border: none;
+    border-top: 1px solid var(--edge);
+    margin: 0 0 12px;
+}
+
+.path-menu-root {
+    text-align: left;
+}
+
+.path-menu-path-title {
+    text-align: left;
+    margin: 16px 0 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--signal);
+}
+
+.path-menu-root .start-point,
+.path-menu-root .end-point {
+    margin-bottom: 12px;
+    padding: 12px 12px 14px;
+    border-radius: 10px;
+    background: var(--surface-card);
+    border: 1px solid var(--edge);
+}
+
+.path-menu-root .start-point h3,
+.path-menu-root .end-point h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+    color: var(--muted);
+}
+
+.path-menu-root span {
+    font-size: 11px;
+    color: var(--fg-dim);
+    margin-right: 4px;
+}
+
+.path-menu-root .textInput {
+    margin: 2px 8px 6px 0;
+    padding: 7px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--edge);
+    background: var(--void);
+    color: var(--fg);
+    font-family: var(--mono);
+    font-size: 12px;
+}
+
+.path-menu-root .textInput:focus {
+    outline: none;
+    border-color: rgba(255, 176, 32, 0.5);
+}
+
+.path-menu-root select.textInput {
+    max-width: 100%;
+    margin-bottom: 6px;
+}
+
+.path-menu-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.path-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--edge-strong);
+    background: var(--surface-card);
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.path-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.path-pill:active {
+    transform: translateY(0);
+}
+
+.path-pill--add {
+    color: var(--cyan);
+    border-color: rgba(53, 212, 190, 0.35);
+}
+
+.path-pill--add:hover {
+    border-color: var(--cyan);
+    background: var(--cyan-dim);
+}
+
+.path-pill--remove {
+    color: var(--danger);
+    border-color: rgba(251, 113, 133, 0.35);
+}
+
+.path-pill--remove:hover {
+    border-color: var(--danger);
+    background: var(--danger-dim);
+}
+
+.path-pill__icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    opacity: 0.95;
+}
+
+.path-waypoints {
+    margin-top: 8px;
+    padding-left: 0;
+    border-left: 2px solid var(--edge);
+    padding-left: 14px;
+    margin-left: 4px;
+}
+
+.path-waypoints h4 {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 12px 0 8px;
+}
+
+.path-waypoints .path-menu-btns {
+    margin-left: 0;
+}
