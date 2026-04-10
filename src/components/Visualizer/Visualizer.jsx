@@ -113,7 +113,7 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
     const renderTangentHandle = (pathIdx, type, pointIdx, point, angleDeg) => {
         const pt = toKonva(point[0], point[1]);
         const angleRad = (angleDeg || 0) * Math.PI / 180;
-        const handleLen = 50; // increased for better control
+        const handleLen = 50; 
         const handlePt = {
             x: pt.x + Math.cos(angleRad) * handleLen,
             y: pt.y - Math.sin(angleRad) * handleLen
@@ -123,29 +123,22 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
             <Group key={`tangent-${type}-${pathIdx}-${pointIdx}`}>
                 <Line
                     points={[pt.x, pt.y, handlePt.x, handlePt.y]}
-                    stroke="rgba(53, 212, 190, 0.45)"
+                    stroke="rgba(248, 250, 252, 0.3)"
                     strokeWidth={1.5}
+                    dash={[4, 4]}
                 />
                 <Circle
                     x={handlePt.x}
                     y={handlePt.y}
-                    radius={5}
-                    fill="#35d4be"
-                    opacity={0.95}
+                    radius={5.5}
+                    fill="#3b82f6"
+                    stroke="#020617"
+                    strokeWidth={1.5}
                     draggable
-                    onDragMove={(e) => {
-                        handleTangentDrag(pathIdx, type, pointIdx, e);
-                    }}
-                    onMouseEnter={e => {
-                        const stage = e.target.getStage();
-                        stage.container().style.cursor = 'crosshair';
-                    }}
-                    onMouseLeave={e => {
-                        const stage = e.target.getStage();
-                        stage.container().style.cursor = 'default';
-                    }}
+                    onDragMove={(e) => handleTangentDrag(pathIdx, type, pointIdx, e)}
+                    onMouseEnter={e => e.target.getStage().container().style.cursor = 'crosshair'}
+                    onMouseLeave={e => e.target.getStage().container().style.cursor = 'default'}
                 />
-                {/* Visual indicator for angle while dragging could be added here if needed */}
             </Group>
         );
     };
@@ -169,13 +162,10 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
                                     <Line
                                         key={i}
                                         points={points}
-                                        stroke="rgba(233, 237, 244, 0.55)"
-                                        strokeWidth={2.5}
+                                        stroke="rgba(59, 130, 246, 0.8)"
+                                        strokeWidth={3}
                                         lineJoin="round"
                                         lineCap="round"
-                                        shadowColor="rgba(0,0,0,0.35)"
-                                        shadowBlur={6}
-                                        shadowOffset={{ x: 0, y: 1 }}
                                     />
                                 );
                             })}
@@ -195,10 +185,10 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
                                         <Circle
                                             x={start.x}
                                             y={start.y}
-                                            radius={6}
-                                    fill="#35d4be"
-                                    stroke="#0a0c10"
-                                            strokeWidth={1.5}
+                                            radius={7}
+                                    fill="#10b981"
+                                    stroke="#020617"
+                                            strokeWidth={2}
                                             draggable
                                             onDragMove={(e) => handlePointDrag(i, "start", 0, e)}
                                             onMouseEnter={e => e.target.getStage().container().style.cursor = 'move'}
@@ -207,10 +197,10 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
                                         <Circle
                                             x={end.x}
                                             y={end.y}
-                                            radius={6}
-                                    fill="#ffb020"
-                                    stroke="#0a0c10"
-                                            strokeWidth={1.5}
+                                            radius={7}
+                                    fill="#f43f5e"
+                                    stroke="#020617"
+                                            strokeWidth={2}
                                             draggable
                                             onDragMove={(e) => handlePointDrag(i, "end", 0, e)}
                                             onMouseEnter={e => e.target.getStage().container().style.cursor = 'move'}
@@ -223,11 +213,10 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
                                                     key={`waypoint-${i}-${j}`}
                                                     x={pt.x}
                                                     y={pt.y}
-                                                    radius={5}
-                                            fill="#e9edf4"
-                                            stroke="#242b38"
-                                                    strokeWidth={1}
-                                                    opacity={0.95}
+                                                    radius={6}
+                                            fill="#94a3b8"
+                                            stroke="#020617"
+                                                    strokeWidth={1.5}
                                                     draggable
                                                     onDragMove={(e) => handlePointDrag(i, "waypoint", j, e)}
                                                     onMouseEnter={e => e.target.getStage().container().style.cursor = 'move'}
@@ -252,29 +241,22 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
                                         y={-9 * scale}
                                         width={18 * scale}
                                         height={18 * scale}
-                                        fillLinearGradientStartPoint={{ x: -9 * scale, y: -9 * scale }}
-                                        fillLinearGradientEndPoint={{ x: 9 * scale, y: 9 * scale }}
-                                fillLinearGradientColorStops={[
-                                    0,
-                                    "rgba(255, 176, 32, 0.92)",
-                                    1,
-                                    "rgba(53, 212, 190, 0.5)",
-                                ]}
-                                stroke="#e9edf4"
-                                        strokeWidth={2}
-                                        cornerRadius={4}
-                                        shadowColor="rgba(0,0,0,0.45)"
-                                        shadowBlur={12}
-                                        shadowOffset={{ x: 0, y: 4 }}
-                                        opacity={0.98}
+                                        fill="rgba(248, 250, 252, 0.1)"
+                                        stroke="#f8fafc"
+                                        strokeWidth={1.5}
+                                        cornerRadius={2}
                                     />
-                                    <Arrow
+                                    {/* Direction indicator */}
+                                    <Line
                                         points={[0, 0, 10 * scale, 0]}
-                                        pointerLength={6}
-                                        pointerWidth={6}
-                                fill="#0a0c10"
-                                stroke="#0a0c10"
+                                        stroke="#3b82f6"
                                         strokeWidth={2}
+                                    />
+                                    <Circle
+                                        x={10 * scale}
+                                        y={0}
+                                        radius={3}
+                                        fill="#3b82f6"
                                     />
                                 </Group>
                             )}

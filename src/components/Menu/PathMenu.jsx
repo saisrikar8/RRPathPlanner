@@ -45,8 +45,14 @@ function PathMenu({paths, setPaths}){
             return { ...p, waypoints: [...p.waypoints, newWaypoint] };
         }));
     }
-    const removeWaypoint = (pathId) => {
-        setPaths(prev => prev.map(p => p.id === pathId ? { ...p, waypoints: p.waypoints.slice(0, -1) } : p));
+    const removeWaypoint = (pathId, waypointIdx) => {
+        setPaths(prev => prev.map(p => {
+            if (p.id !== pathId) return p;
+            return {
+                ...p,
+                waypoints: p.waypoints.filter((_, idx) => idx !== waypointIdx)
+            };
+        }));
     }
     const updateWaypoint = (pathId, waypointIdx, waypoint) => {
         setPaths(prev => prev.map(p => p.id === pathId ? {
@@ -54,10 +60,10 @@ function PathMenu({paths, setPaths}){
             waypoints: p.waypoints.map((w, idx) => idx === waypointIdx ? waypoint : w)
         } : p));
     }
-    const removeLastPath = () => {
+    const removePath = (pathId) => {
         setPaths(prev => {
             if (prev.length <= 1) return prev;
-            return prev.filter(path => path.id !== (prev.length - 1));
+            return prev.filter(path => path.id !== pathId);
         });
     }
     const addPath = () => {
@@ -67,7 +73,7 @@ function PathMenu({paths, setPaths}){
             const clamp = (v) => Math.max(-72, Math.min(72, v));
             const clampedEnd = [clamp(startPoint[0] + 20), clamp(startPoint[1] + 20), 0];
             return [...prev, {
-                id: prev.length,
+                id: Date.now(),
                 startPoint,
                 endPoint: clampedEnd,
                 headingInterpolation: "tangent",
@@ -79,10 +85,23 @@ function PathMenu({paths, setPaths}){
     }
     return (
         <div className="path-menu-root">
-            {paths.map((path) => {
+            {paths.map((path, idx) => {
                 return (
                     <Fragment key={path.id}>
-                        <h3 className="path-menu-path-title">Path {path.id + 1}</h3>
+                        <div className="path-menu-path-header">
+                            <h3 className="path-menu-path-title">Path {idx + 1}</h3>
+                            <button 
+                                type="button" 
+                                className="path-menu-item-remove" 
+                                onClick={() => removePath(path.id)}
+                                title="Remove this path"
+                            >
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
                         <hr className="path-menu-divider" />
                         <div className = "start-point">
                             <h3 style = {{textAlign: "left"}}>Start Point</h3>
@@ -119,12 +138,11 @@ function PathMenu({paths, setPaths}){
             })}
             <div className="path-menu-btns">
                 <button type="button" className="path-pill path-pill--add" onClick={addPath}>
-                    <img src="plus.png" width={16} height={16} alt="" className="path-pill__icon" />
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
                     Add path
-                </button>
-                <button type="button" className="path-pill path-pill--remove" onClick={removeLastPath}>
-                    <img src="minus-sign.png" width={16} height={16} alt="" className="path-pill__icon" />
-                    Remove path
                 </button>
             </div>
         </div>
@@ -132,30 +150,42 @@ function PathMenu({paths, setPaths}){
 }
 
 function WayPoints({ waypoints, addWaypoint, removeWaypoint, updateWaypoint, pathId }) {
-    let count = 0;
     return (
         <div className="path-waypoints">
             {
                 waypoints.map((waypoint, index)=>{
-                    count++;
                     return (
-                        <div key={index}>
-                            <h4>Waypoint {count}</h4>
-                            <span>X: </span><input onChange = {e => updateWaypoint(pathId, index, [parseFloat(e.target.value) || 0, waypoint[1], waypoint[2]])} type = "number" max = "72" min = "-72" step = "0.01" className = "textInput" value={waypoint[0].toFixed(2)}/>
-                            <span>Y: </span><input onChange = {e => updateWaypoint(pathId, index, [waypoint[0], parseFloat(e.target.value) || 0, waypoint[2]])} type = "number" max = "72" min = "-72" step = "0.01" className = "textInput" value={waypoint[1].toFixed(2)}/>
-                            <span>Tangent: </span><input onChange = {e => updateWaypoint(pathId, index, [waypoint[0], waypoint[1], parseFloat(e.target.value) || 0])} type = "number" max = "360" min = "-360" step = "1" className = "textInput" value={Math.round(waypoint[2])}/>
+                        <div key={index} className="waypoint-item">
+                            <div className="waypoint-header">
+                                <h4>Waypoint {index + 1}</h4>
+                                <button 
+                                    type="button" 
+                                    className="path-menu-item-remove" 
+                                    onClick={() => removeWaypoint(pathId, index)}
+                                    title="Remove this waypoint"
+                                >
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div className="waypoint-fields">
+                                <span>X: </span><input onChange = {e => updateWaypoint(pathId, index, [parseFloat(e.target.value) || 0, waypoint[1], waypoint[2]])} type = "number" max = "72" min = "-72" step = "0.01" className = "textInput" value={waypoint[0].toFixed(2)}/>
+                                <span>Y: </span><input onChange = {e => updateWaypoint(pathId, index, [waypoint[0], parseFloat(e.target.value) || 0, waypoint[2]])} type = "number" max = "72" min = "-72" step = "0.01" className = "textInput" value={waypoint[1].toFixed(2)}/>
+                                <span>Tangent: </span><input onChange = {e => updateWaypoint(pathId, index, [waypoint[0], waypoint[1], parseFloat(e.target.value) || 0])} type = "number" max = "360" min = "-360" step = "1" className = "textInput" value={Math.round(waypoint[2])}/>
+                            </div>
                         </div>
                     )
                 })
             }
             <div className="path-menu-btns">
                 <button type="button" className="path-pill path-pill--add" onClick={() => addWaypoint(pathId)}>
-                    <img src="plus.png" width={16} height={16} alt="" className="path-pill__icon" />
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
                     Add waypoint
-                </button>
-                <button type="button" className="path-pill path-pill--remove" onClick={() => removeWaypoint(pathId)}>
-                    <img src="minus-sign.png" width={16} height={16} alt="" className="path-pill__icon" />
-                    Remove waypoint
                 </button>
             </div>
         </div>

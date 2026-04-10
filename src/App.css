@@ -8,7 +8,7 @@
 
 .app-body {
     display: flex;
-    flex-direction: row;
+    flex-direction: row; /* Sidebar on the left */
     flex: 1;
     min-height: 0;
     align-items: stretch;
@@ -24,6 +24,7 @@
     padding: 0;
     box-sizing: border-box;
     overflow: hidden;
+    position: relative;
 }
 
 .field-panel {
@@ -33,20 +34,21 @@
     flex-direction: column;
     border-radius: 0;
     border: none;
-    border-right: 1px solid var(--edge);
     overflow: hidden;
-    background: var(--surface);
+    background: var(--void);
     box-shadow: none;
 }
 
 .sidebar-column {
-    width: clamp(300px, 22vw, 380px);
+    width: clamp(300px, 24vw, 400px);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
-    background: var(--surface-raised);
+    background: var(--void);
+    border-right: 1px solid var(--edge);
+    z-index: 10;
 }
 
 @media (max-width: 900px) {

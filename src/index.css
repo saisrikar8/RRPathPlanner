@@ -2,41 +2,42 @@
 :root {
   color-scheme: dark;
 
-  --void: #050607;
-  --surface: #0a0c10;
-  --surface-raised: #10141c;
-  --surface-card: #121826;
-  --edge: #242b38;
-  --edge-strong: #3d4a62;
+  /* Pure black palette */
+  --void: #000000;
+  --surface: #080808;
+  --surface-raised: #101010;
+  --surface-card: #181818;
+  --edge: #1c1c1c;
+  --edge-strong: #282828;
 
-  --fg: #e9edf4;
-  --fg-dim: #9aa3b2;
-  --muted: #6b7380;
+  --fg: #f0f0f0;
+  --fg-dim: #a0a0a0;
+  --muted: #555555;
 
-  --signal: #ffb020;
-  --signal-dim: rgba(255, 176, 32, 0.14);
-  --cyan: #35d4be;
-  --cyan-dim: rgba(53, 212, 190, 0.12);
-  --danger: #fb7185;
-  --danger-dim: rgba(251, 113, 133, 0.12);
+  --signal: #3b82f6;
+  --signal-dim: rgba(59, 130, 246, 0.12);
+  --cyan: #10b981;
+  --cyan-dim: rgba(16, 185, 129, 0.10);
+  --danger: #ef4444;
+  --danger-dim: rgba(239, 68, 68, 0.10);
 
   /* Map legacy tokens used across components */
   --text: var(--fg-dim);
   --text-h: var(--fg);
   --bg: var(--void);
   --border: var(--edge);
-  --code-bg: var(--surface-raised);
+  --code-bg: var(--surface);
   --accent: var(--signal);
   --accent-bg: var(--signal-dim);
-  --accent-border: rgba(255, 176, 32, 0.45);
-  --shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+  --accent-border: rgba(59, 130, 246, 0.4);
+  --shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.5);
 
-  --sans: "Figtree", system-ui, sans-serif;
-  --heading: "Figtree", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
 
-  font: 16px/145% var(--sans);
-  letter-spacing: 0.01em;
+  font: 14px/1.5 var(--sans);
+  letter-spacing: -0.01em;
   color: var(--text);
   background: var(--void);
   font-synthesis: none;
@@ -47,6 +48,7 @@
 
 body {
   margin: 0;
+  background-color: var(--void);
 }
 
 html {
@@ -58,9 +60,6 @@ body {
   height: 100%;
   overflow: hidden;
   background-color: var(--void);
-  background-image:
-    radial-gradient(ellipse 120% 80% at 0% -20%, rgba(255, 176, 32, 0.07), transparent 55%),
-    radial-gradient(ellipse 90% 60% at 100% 0%, rgba(53, 212, 190, 0.06), transparent 50%);
 }
 
 #root {

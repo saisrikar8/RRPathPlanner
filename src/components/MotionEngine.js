@@ -453,58 +453,25 @@ export class MotionEngine {
     }
 
     _generateSegmentCode(path, compiled) {
-        const { headingInterpolation, waypoints } = path;
+        const { headingInterpolation } = path;
         const { segments } = compiled;
 
-        const isLine = waypoints.length === 0;
-
-        if (isLine) {
-            const [ex, ey] = path.endPoint;
-            const endFacingDeg = path.endHeading ?? path.endPoint[2] ?? 0;
-            let line = "";
-            switch (headingInterpolation) {
-                case "tangent":
-                    line = `.strafeTo(new Vector2d(${fmt(ex)}, ${fmt(ey)}))`;
-                    break;
-                case "constant":
-                    line = `.strafeToConstantHeading(new Vector2d(${fmt(ex)}, ${fmt(ey)}))`;
-                    break;
-                case "linear":
-                    line = `.strafeToLinearHeading(new Vector2d(${fmt(ex)}, ${fmt(ey)}), Math.toRadians(${fmt(endFacingDeg)}))`;
-                    break;
-                default:
-                    line = `.strafeTo(new Vector2d(${fmt(ex)}, ${fmt(ey)}))`;
-            }
-            return `                ${line}`;
-        }
-
-        // Multi-segment spline (one for each waypoint + one for the end)
         return segments.map(seg => {
             const [ex, ey] = seg.P3;
-            // Exit tangent at segment end
             const d = evalCubicDerivative(seg.P0, seg.P1, seg.P2, seg.P3, 1);
-            const exitTangentRad = Math.atan2(d[1], d[0]);
-            const exitTangentStr = `Math.toRadians(${fmt(toDeg(exitTangentRad))})`;
+            const exitTangentStr = `Math.toRadians(${fmt(toDeg(Math.atan2(d[1], d[0])))})`;
+            const endFacingDeg = fmt(toDeg(seg.headingFn(1)));
 
-            // Robot facing at segment end
-            const endFacingRad = seg.headingFn(1);
-            const endFacingDeg = toDeg(endFacingRad);
-
-            let method = "";
             switch (headingInterpolation) {
                 case "tangent":
-                    method = `.splineTo(new Vector2d(${fmt(ex)}, ${fmt(ey)}), ${exitTangentStr})`;
-                    break;
+                    return `                .splineTo(new Vector2d(${fmt(ex)}, ${fmt(ey)}), ${exitTangentStr})`;
                 case "constant":
-                    method = `.splineToConstantHeading(new Vector2d(${fmt(ex)}, ${fmt(ey)}), ${exitTangentStr})`;
-                    break;
+                    return `                .splineToConstantHeading(new Vector2d(${fmt(ex)}, ${fmt(ey)}), ${exitTangentStr})`;
                 case "linear":
-                    method = `.splineToLinearHeading(new Pose2d(${fmt(ex)}, ${fmt(ey)}, Math.toRadians(${fmt(endFacingDeg)})), ${exitTangentStr})`;
-                    break;
+                    return `                .splineToLinearHeading(new Pose2d(${fmt(ex)}, ${fmt(ey)}, Math.toRadians(${endFacingDeg})), ${exitTangentStr})`;
                 default:
-                    method = `.splineTo(new Vector2d(${fmt(ex)}, ${fmt(ey)}), ${exitTangentStr})`;
+                    return `                .splineTo(new Vector2d(${fmt(ex)}, ${fmt(ey)}), ${exitTangentStr})`;
             }
-            return `                ${method}`;
         }).join("\n");
     }
 

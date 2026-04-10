@@ -5,6 +5,8 @@ import Menu from "./components/Menu/Menu.jsx";
 import PlaybackBar from "./components/PlaybackBar/PlaybackBar.jsx";
 import {useState, useMemo, useEffect, useRef} from "react";
 import {MotionEngine, buildDriveTimeProfile} from "./components/MotionEngine.js";
+import MotionParamsModal from "./components/MotionParamsModal/MotionParamsModal.jsx";
+import ExportModal from "./components/ExportModal/ExportModal.jsx";
 
 const DEFAULT_MOTION = {
     maxVel: 50,
@@ -22,6 +24,8 @@ function App() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [progress, setProgress] = useState(0); // 0–1000 → normalized time along profile
     const [motionConstraints, setMotionConstraints] = useState(DEFAULT_MOTION);
+    const [motionModalOpen, setMotionModalOpen] = useState(false);
+    const [exportModalOpen, setExportModalOpen] = useState(false);
 
     const engine = useMemo(() => {
         if (!displayedPaths || displayedPaths.length === 0) return null;
@@ -87,8 +91,20 @@ function App() {
 
     return (
         <div className="app-root">
-            <Header />
+            <Header 
+                onOpenMotion={() => setMotionModalOpen(true)}
+                onOpenExport={() => setExportModalOpen(true)}
+            />
             <div className="app-body">
+                <aside className="sidebar-column">
+                    <Menu
+                        displayedPaths={displayedPaths}
+                        setDisplayedPaths={setDisplayedPaths}
+                        currentPosition={currentPosition}
+                        totalTime={totalTime}
+                        motionConstraints={motionConstraints}
+                    />
+                </aside>
                 <main className="field-column">
                     <div className="field-panel">
                         <Visualizer
@@ -107,18 +123,20 @@ function App() {
                         />
                     </div>
                 </main>
-                <aside className="sidebar-column">
-                    <Menu
-                        displayedPaths={displayedPaths}
-                        setDisplayedPaths={setDisplayedPaths}
-                        currentPosition={currentPosition}
-                        engine={engine}
-                        totalTime={totalTime}
-                        motionConstraints={motionConstraints}
-                        setMotionConstraints={setMotionConstraints}
-                    />
-                </aside>
             </div>
+
+            <MotionParamsModal
+                open={motionModalOpen}
+                onClose={() => setMotionModalOpen(false)}
+                motionConstraints={motionConstraints}
+                setMotionConstraints={setMotionConstraints}
+            />
+
+            <ExportModal
+                open={exportModalOpen}
+                onClose={() => setExportModalOpen(false)}
+                engine={engine}
+            />
         </div>
     )
 }

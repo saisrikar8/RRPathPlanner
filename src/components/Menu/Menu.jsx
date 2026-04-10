@@ -1,7 +1,6 @@
 import "./Menu.css";
 import { useMemo, useState, useCallback } from "react";
 import PathMenu from "./PathMenu.jsx";
-import MotionParamsModal from "../MotionParamsModal/MotionParamsModal.jsx";
 
 function AccordionSection({ id, title, summary, open, onToggle, children }) {
     return (
@@ -25,28 +24,17 @@ function Menu({
     displayedPaths,
     setDisplayedPaths,
     currentPosition,
-    engine,
     totalTime,
     motionConstraints,
-    setMotionConstraints,
 }) {
-    const [showCode, setShowCode] = useState(false);
-    const [motionModalOpen, setMotionModalOpen] = useState(false);
-    const [className, setClassName] = useState("AutonomousOpMode");
     const [openSections, setOpenSections] = useState(() => ({
         telemetry: true,
         paths: true,
-        export: false,
     }));
 
     const toggleSection = useCallback((id) => {
         setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
     }, []);
-
-    const generatedCode = useMemo(() => {
-        if (!engine) return "// Define some paths to see code";
-        return engine.generateRoadrunnerCode(className);
-    }, [engine, className]);
 
     const telemetrySummary = useMemo(() => {
         if (!currentPosition) return "";
@@ -70,41 +58,20 @@ function Menu({
     return (
         <div className="sidebar">
             <div className="sidebar__header">
-                <div className="sidebar__header-top">
-                    <div className="sidebar__header-text">
-                        <h2 className="sidebar__title">Planner</h2>
-                        <p className="sidebar__subtitle">Paths, telemetry, and export</p>
-                    </div>
-                    <button
-                        type="button"
-                        className="sidebar__motion-btn"
-                        onClick={() => setMotionModalOpen(true)}
-                        title="Open motion parameters"
-                    >
-                        Motion
-                    </button>
+                <div className="sidebar__header-text">
+                    <h2 className="sidebar__title">Telemetry</h2>
+                    <p className="sidebar__subtitle">Current Pose & Stats</p>
                 </div>
-                <button
-                    type="button"
-                    className="sidebar__motion-chip"
-                    onClick={() => setMotionModalOpen(true)}
-                >
-                    <span className="sidebar__motion-chip-label">Profile</span>
-                    <span className="sidebar__motion-chip-value">{motionSummary}</span>
-                </button>
+                <div className="sidebar__profile-chip">
+                    <span className="sidebar__profile-label">Motion Profile</span>
+                    <span className="sidebar__profile-value">{motionSummary}</span>
+                </div>
             </div>
-
-            <MotionParamsModal
-                open={motionModalOpen}
-                onClose={() => setMotionModalOpen(false)}
-                motionConstraints={motionConstraints}
-                setMotionConstraints={setMotionConstraints}
-            />
 
             <div className="sidebar__scroll">
                 <AccordionSection
                     id="telemetry"
-                    title="Telemetry"
+                    title="Live Pose"
                     summary={telemetrySummary}
                     open={openSections.telemetry}
                     onToggle={toggleSection}
@@ -123,54 +90,12 @@ function Menu({
 
                 <AccordionSection
                     id="paths"
-                    title="Paths"
-                    summary={`${displayedPaths.length} segment(s)`}
+                    title="Path Segments"
+                    summary={`${displayedPaths.length} path(s)`}
                     open={openSections.paths}
                     onToggle={toggleSection}
                 >
                     <PathMenu paths={displayedPaths} setPaths={setDisplayedPaths} />
-                </AccordionSection>
-
-                <AccordionSection
-                    id="export"
-                    title="Export"
-                    summary="Road Runner"
-                    open={openSections.export}
-                    onToggle={toggleSection}
-                >
-                    <div className="code-class-row">
-                        <label className="code-class-label" htmlFor="rr-class-name">
-                            Class name
-                        </label>
-                        <input
-                            id="rr-class-name"
-                            type="text"
-                            value={className}
-                            onChange={(e) =>
-                                setClassName(e.target.value.replace(/\s/g, "") || "AutonomousOpMode")
-                            }
-                            className="code-class-input"
-                        />
-                    </div>
-                    <button
-                        type="button"
-                        className="path-menu-btn menu-btn-full"
-                        onClick={() => setShowCode(!showCode)}
-                    >
-                        {showCode ? "Hide Java" : "Show generated Java"}
-                    </button>
-                    {showCode ? (
-                        <>
-                            <button
-                                type="button"
-                                className="path-menu-btn menu-btn-full menu-btn-secondary"
-                                onClick={() => navigator.clipboard.writeText(generatedCode)}
-                            >
-                                Copy to clipboard
-                            </button>
-                            <pre className="generated-code-block">{generatedCode}</pre>
-                        </>
-                    ) : null}
                 </AccordionSection>
             </div>
         </div>

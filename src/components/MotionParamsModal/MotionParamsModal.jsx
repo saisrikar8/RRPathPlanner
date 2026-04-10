@@ -70,8 +70,7 @@ function MotionParamsModal({ open, onClose, motionConstraints, setMotionConstrai
                         </p>
                         <div className="motion-modal__grid">
                             <label className="motion-modal__field">
-                                <span className="motion-modal__label">Max velocity</span>
-                                <span className="motion-modal__unit">in/s</span>
+                                <span className="motion-modal__label">Max velocity (in/s)</span>
                                 <input
                                     type="number"
                                     min={0}
@@ -82,8 +81,7 @@ function MotionParamsModal({ open, onClose, motionConstraints, setMotionConstrai
                                 />
                             </label>
                             <label className="motion-modal__field">
-                                <span className="motion-modal__label">Max acceleration</span>
-                                <span className="motion-modal__unit">in/s²</span>
+                                <span className="motion-modal__label">Max acceleration (in/s²)</span>
                                 <input
                                     type="number"
                                     min={0}
@@ -93,9 +91,8 @@ function MotionParamsModal({ open, onClose, motionConstraints, setMotionConstrai
                                     className="motion-modal__input"
                                 />
                             </label>
-                            <label className="motion-modal__field motion-modal__field--wide">
-                                <span className="motion-modal__label">Max deceleration</span>
-                                <span className="motion-modal__unit">in/s²</span>
+                            <label className="motion-modal__field">
+                                <span className="motion-modal__label">Max deceleration (in/s²)</span>
                                 <input
                                     type="number"
                                     min={0}
@@ -112,8 +109,7 @@ function MotionParamsModal({ open, onClose, motionConstraints, setMotionConstrai
                         <h3 className="motion-modal__section-title">Rotation</h3>
                         <div className="motion-modal__grid">
                             <label className="motion-modal__field">
-                                <span className="motion-modal__label">Max angular velocity</span>
-                                <span className="motion-modal__unit">°/s</span>
+                                <span className="motion-modal__label">Max angular velocity (°/s)</span>
                                 <input
                                     type="number"
                                     min={0}
@@ -123,9 +119,8 @@ function MotionParamsModal({ open, onClose, motionConstraints, setMotionConstrai
                                     className="motion-modal__input"
                                 />
                             </label>
-                            <label className="motion-modal__field motion-modal__field--wide">
-                                <span className="motion-modal__label">Max angular acceleration</span>
-                                <span className="motion-modal__unit">°/s²</span>
+                            <label className="motion-modal__field">
+                                <span className="motion-modal__label">Max angular acceleration (°/s²)</span>
                                 <input
                                     type="number"
                                     min={0}
@@ -140,16 +135,9 @@ function MotionParamsModal({ open, onClose, motionConstraints, setMotionConstrai
 
                     <section className="motion-modal__section">
                         <h3 className="motion-modal__section-title">Traction &amp; drag</h3>
-                        <p className="motion-modal__hint">
-                            <strong>Friction μ</strong> limits lateral and longitudinal acceleration to about{" "}
-                            <span className="motion-modal__mono">μ·g</span> (g ≈ 386 in/s²).{" "}
-                            <strong>Rolling resistance</strong> opposes motion when accelerating and adds effective
-                            braking when slowing.
-                        </p>
                         <div className="motion-modal__grid">
                             <label className="motion-modal__field">
                                 <span className="motion-modal__label">Friction coefficient μ</span>
-                                <span className="motion-modal__unit">—</span>
                                 <input
                                     type="number"
                                     min={0.05}
@@ -160,9 +148,8 @@ function MotionParamsModal({ open, onClose, motionConstraints, setMotionConstrai
                                     className="motion-modal__input"
                                 />
                             </label>
-                            <label className="motion-modal__field motion-modal__field--wide">
-                                <span className="motion-modal__label">Rolling resistance</span>
-                                <span className="motion-modal__unit">in/s²</span>
+                            <label className="motion-modal__field">
+                                <span className="motion-modal__label">Rolling resistance (in/s²)</span>
                                 <input
                                     type="number"
                                     min={0}
