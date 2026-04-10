@@ -59,11 +59,10 @@ function Menu({
         <div className="sidebar">
             <div className="sidebar__header">
                 <div className="sidebar__header-text">
-                    <h2 className="sidebar__title">Telemetry</h2>
-                    <p className="sidebar__subtitle">Current Pose & Stats</p>
+                    <p className="sidebar__subtitle">Menu</p>
                 </div>
                 <div className="sidebar__profile-chip">
-                    <span className="sidebar__profile-label">Motion Profile</span>
+                    <span className="sidebar__profile-label">Motion Parameters</span>
                     <span className="sidebar__profile-value">{motionSummary}</span>
                 </div>
             </div>
@@ -71,7 +70,7 @@ function Menu({
             <div className="sidebar__scroll">
                 <AccordionSection
                     id="telemetry"
-                    title="Live Pose"
+                    title="Current Position"
                     summary={telemetrySummary}
                     open={openSections.telemetry}
                     onToggle={toggleSection}
