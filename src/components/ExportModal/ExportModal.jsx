@@ -55,7 +55,7 @@ function ExportModal({ open, onClose, engine }) {
             >
                 <div className="export-modal__header">
                     <h2 id="export-modal-title" className="export-modal__title">
-                        Road Runner Export
+                        Generated Code
                     </h2>
                     <button type="button" className="export-modal__close" onClick={onClose} aria-label="Close">
                         ×
@@ -64,10 +64,9 @@ function ExportModal({ open, onClose, engine }) {
 
                 <div className="export-modal__body">
                     <section className="export-modal__section">
-                        <h3 className="export-modal__section-title">OpMode Configuration</h3>
                         <div className="export-modal__field">
                             <label className="export-modal__label" htmlFor="rr-class-name">
-                                Class Name
+                                OpMode Name
                             </label>
                             <input
                                 id="rr-class-name"
@@ -84,13 +83,14 @@ function ExportModal({ open, onClose, engine }) {
 
                     <section className="export-modal__section export-modal__section--code">
                         <div className="export-modal__code-header">
-                            <h3 className="export-modal__section-title">Generated Java</h3>
-                            <button 
-                                type="button" 
+                            <h3 className="export-modal__label">Generated Code</h3>
+                            <button
+                                type="button"
                                 className={`export-modal__copy-btn ${copying ? 'export-modal__copy-btn--success' : ''}`}
                                 onClick={handleCopy}
                             >
-                                {copying ? "Copied!" : "Copy Code"}
+                                {copying ? "Copied!" : (
+                                    <img width = "15" height = "19" src = "/copy.png"/>)}
                             </button>
                         </div>
                         <div className="export-modal__code-wrapper">
