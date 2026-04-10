@@ -2,10 +2,12 @@ import "./Visualizer.css";
 import { Layer, Stage, Line, Rect, Group, Circle, Arrow } from "react-konva";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MotionEngine } from "../MotionEngine.js";
+import fieldImg from '../../assets/field-2025-juice-dark.png';
 
 function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosition }) {
     const measureRef = useRef(null);
     const [stageSize, setStageSize] = useState(400);
+
 
     useEffect(() => {
         const el = measureRef.current;
@@ -153,7 +155,7 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
             <div className="Visualizer__measure" ref={measureRef}>
                 <div
                     className="Visualizer__field-square"
-                    style={{ width: stageSize, height: stageSize }}
+                    style={{ width: stageSize, height: stageSize, backgroundImage: `url(${fieldImg})` }}
                 >
                     <Stage width={stageSize} height={stageSize}>
                         <Layer>
