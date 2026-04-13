@@ -90,7 +90,7 @@ function Menu({
                 <AccordionSection
                     id="paths"
                     title="Path Segments"
-                    summary={`${displayedPaths.length} path(s)`}
+                    summary={`${displayedPaths.filter(p => !p.type || p.type === 'path').length} path(s)`}
                     open={openSections.paths}
                     onToggle={toggleSection}
                 >

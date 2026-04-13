@@ -1,6 +1,6 @@
 import "./Header.css";
 
-function Header({ onOpenMotion, onOpenExport }) {
+function Header({ onOpenMotion, onOpenExport, onOpenImport }) {
     return (
         <header className="header">
             <div className="header__brand">
@@ -11,6 +11,14 @@ function Header({ onOpenMotion, onOpenExport }) {
             </div>
             
             <div className="header__actions">
+                <button
+                    type="button"
+                    className="header__btn"
+                    onClick={onOpenImport}
+                    title="Import Code"
+                >
+                    <img src = "/import.svg" style = {{filter: "invert(1)"}}/>
+                </button>
                 <button 
                     type="button" 
                     className="header__btn"

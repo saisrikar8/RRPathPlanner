@@ -174,3 +174,22 @@
 .path-waypoints .path-menu-btns {
     margin-left: 0;
 }
+
+.wait-title {
+    color: var(--cyan) !important;
+}
+
+.wait-block {
+    display: flex;
+    align-items: center;
+    padding: 10px 0 14px;
+}
+
+.path-pill--wait {
+    color: var(--muted);
+}
+
+.path-pill--wait:hover {
+    color: var(--signal);
+    background: var(--signal-dim);
+}

@@ -7,6 +7,7 @@ import {useState, useMemo, useEffect, useRef} from "react";
 import {MotionEngine, buildDriveTimeProfile} from "./components/MotionEngine.js";
 import MotionParamsModal from "./components/MotionParamsModal/MotionParamsModal.jsx";
 import ExportModal from "./components/ExportModal/ExportModal.jsx";
+import ImportModal from "./components/ImportModal/ImportModal.jsx";
 
 const DEFAULT_MOTION = {
     maxVel: 50,
@@ -26,6 +27,7 @@ function App() {
     const [motionConstraints, setMotionConstraints] = useState(DEFAULT_MOTION);
     const [motionModalOpen, setMotionModalOpen] = useState(false);
     const [exportModalOpen, setExportModalOpen] = useState(false);
+    const [importModalOpen, setImportModalOpen] = useState(false);
 
     const engine = useMemo(() => {
         if (!displayedPaths || displayedPaths.length === 0) return null;
@@ -94,6 +96,7 @@ function App() {
             <Header 
                 onOpenMotion={() => setMotionModalOpen(true)}
                 onOpenExport={() => setExportModalOpen(true)}
+                onOpenImport={() => setImportModalOpen(true)}
             />
             <div className="app-body">
                 <aside className="sidebar-column">
@@ -136,6 +139,12 @@ function App() {
                 open={exportModalOpen}
                 onClose={() => setExportModalOpen(false)}
                 engine={engine}
+            />
+
+            <ImportModal
+                open={importModalOpen}
+                onClose={()=>setImportModalOpen(false)}
+                setDisplayedPaths={setDisplayedPaths}
             />
         </div>
     )

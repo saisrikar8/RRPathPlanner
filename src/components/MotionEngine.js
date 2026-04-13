@@ -261,8 +261,9 @@ function arcLengthToT(table, s) {
 }
 
 export class MotionEngine {
-    constructor(paths) {
-        this.paths = paths;
+    constructor(allItems) {
+        this.allItems = allItems;
+        this.paths = allItems.filter(item => !item.type || item.type === 'path');
         this._compiled = [];
         this._compile();
     }
@@ -405,8 +406,14 @@ export class MotionEngine {
 
         // Build the trajectory segment lines
         const segmentLines = [];
-        for (let i = 0; i < this.paths.length; i++) {
-            segmentLines.push(this._generateSegmentCode(this.paths[i], this._compiled[i]));
+        let compiledIdx = 0;
+        for (const item of this.allItems) {
+            if (item.type === 'wait') {
+                segmentLines.push(`                .waitSeconds(${item.duration ?? 0})`);
+            } else {
+                segmentLines.push(this._generateSegmentCode(item, this._compiled[compiledIdx]));
+                compiledIdx++;
+            }
         }
 
         return [
@@ -550,15 +557,14 @@ export function buildDriveTimeProfile(engine, constraints) {
     }
 
     if (totalLen < 1e-6 || !Number.isFinite(totalLen)) {
+        const allItemsFallback = engine.allItems || engine.paths;
+        const waitTotal = allItemsFallback.filter(i => i.type === 'wait').reduce((s, w) => s + (w.duration || 0), 0);
+        const defaultPose = engine.paths.length > 0 && engine.paths[0].startPoint
+            ? [engine.paths[0].startPoint[0], engine.paths[0].startPoint[1], engine.paths[0].startPoint[2] ?? 0]
+            : [0, 0, 0];
         return {
-            totalTime: 0,
-            getPoseAtTime: (_t) => {
-                if (engine.paths.length && engine.paths[0].startPoint) {
-                    const sp = engine.paths[0].startPoint;
-                    return [sp[0], sp[1], sp[2] ?? 0];
-                }
-                return [0, 0, 0];
-            },
+            totalTime: waitTotal,
+            getPoseAtTime: (_t) => defaultPose,
             getArcLengthAtTime: () => 0,
         };
     }
@@ -642,7 +648,7 @@ export function buildDriveTimeProfile(engine, constraints) {
         tTab[i + 1] = tTab[i] + dtSeg;
     }
 
-    const totalTime = tTab[N] > 0 ? tTab[N] : 0;
+    const physTotalTime = tTab[N] > 0 ? tTab[N] : 0;
 
     function interpolatePose(i0, i1, u) {
         const p0 = poses[i0];
@@ -658,44 +664,95 @@ export function buildDriveTimeProfile(engine, constraints) {
         return [x, y, toDeg(h)];
     }
 
-    function getPoseAtTime(t) {
-        if (totalTime <= 0 || N === 0) return [...poses[0]];
-        const tt = Math.min(Math.max(t, 0), totalTime);
+    function getPoseAtPhysicsTime(pt) {
+        if (physTotalTime <= 0 || N === 0) return [...poses[0]];
+        const tt = Math.min(Math.max(pt, 0), physTotalTime);
         if (tt <= 0) return [...poses[0]];
-        if (tt >= totalTime) return [...poses[N]];
-
-        let lo = 0;
-        let hi = N;
+        if (tt >= physTotalTime) return [...poses[N]];
+        let lo = 0, hi = N;
         while (hi - lo > 1) {
             const mid = (lo + hi) >> 1;
-            if (tTab[mid] < tt) lo = mid;
-            else hi = mid;
+            if (tTab[mid] < tt) lo = mid; else hi = mid;
         }
-        const i = lo;
-        const t0 = tTab[i];
-        const t1 = tTab[i + 1];
+        const t0 = tTab[lo], t1 = tTab[lo + 1];
         const u = t1 - t0 > 1e-12 ? (tt - t0) / (t1 - t0) : 0;
-        return interpolatePose(i, i + 1, u);
+        return interpolatePose(lo, lo + 1, u);
+    }
+
+    // physics arc length → physics time
+    function getPhysTimeAtArcLen(s) {
+        if (s <= 0) return 0;
+        if (s >= totalLen) return physTotalTime;
+        let lo = 0, hi = N;
+        while (hi - lo > 1) {
+            const mid = (lo + hi) >> 1;
+            if (sTab[mid] < s) lo = mid; else hi = mid;
+        }
+        const frac = sTab[hi] - sTab[lo] > 1e-9 ? (s - sTab[lo]) / (sTab[hi] - sTab[lo]) : 0;
+        return tTab[lo] + frac * (tTab[hi] - tTab[lo]);
+    }
+
+    // Build timeline interleaving path segments and waits
+    const allItems = engine.allItems || engine.paths;
+    const timeline = [];
+    let cumArcLen = 0;
+    let absT = 0;
+    let piIdx = 0;
+
+    for (const item of allItems) {
+        if (item.type === 'wait') {
+            const dur = Math.max(0, item.duration || 0);
+            const pose = engine.getPoseAtGlobalArcLength(cumArcLen);
+            timeline.push({ type: 'wait', startT: absT, endT: absT + dur, pose, arcLen: cumArcLen });
+            absT += dur;
+        } else {
+            const pLen = engine.getPathLength(piIdx);
+            const pPhysStart = getPhysTimeAtArcLen(cumArcLen);
+            const pPhysEnd = getPhysTimeAtArcLen(cumArcLen + pLen);
+            const pDur = pPhysEnd - pPhysStart;
+            timeline.push({ type: 'path', startT: absT, endT: absT + pDur, pPhysStart, pPhysEnd, arcLen: cumArcLen });
+            absT += pDur;
+            cumArcLen += pLen;
+            piIdx++;
+        }
+    }
+
+    const totalTime = absT || 0;
+
+    function getPoseAtTime(t) {
+        if (totalTime <= 0 || timeline.length === 0) return poses.length ? [...poses[0]] : [0, 0, 0];
+        const tt = Math.min(Math.max(t, 0), totalTime);
+        for (const seg of timeline) {
+            if (tt <= seg.endT + 1e-9) {
+                if (seg.type === 'wait') return [...seg.pose];
+                const dur = seg.endT - seg.startT;
+                const relFrac = dur > 1e-9 ? (tt - seg.startT) / dur : 1;
+                const physT = seg.pPhysStart + relFrac * (seg.pPhysEnd - seg.pPhysStart);
+                return getPoseAtPhysicsTime(physT);
+            }
+        }
+        return [...poses[N]];
     }
 
     function getArcLengthAtTime(t) {
         if (totalTime <= 0) return 0;
         const tt = Math.min(Math.max(t, 0), totalTime);
-        if (tt <= 0) return 0;
-        if (tt >= totalTime) return totalLen;
-
-        let lo = 0;
-        let hi = N;
-        while (hi - lo > 1) {
-            const mid = (lo + hi) >> 1;
-            if (tTab[mid] < tt) lo = mid;
-            else hi = mid;
+        for (const seg of timeline) {
+            if (tt <= seg.endT + 1e-9) {
+                if (seg.type === 'wait') return seg.arcLen;
+                const dur = seg.endT - seg.startT;
+                const relFrac = dur > 1e-9 ? (tt - seg.startT) / dur : 1;
+                const physT = seg.pPhysStart + relFrac * (seg.pPhysEnd - seg.pPhysStart);
+                let lo = 0, hi = N;
+                while (hi - lo > 1) {
+                    const mid = (lo + hi) >> 1;
+                    if (tTab[mid] < physT) lo = mid; else hi = mid;
+                }
+                const u = tTab[lo + 1] - tTab[lo] > 1e-12 ? (physT - tTab[lo]) / (tTab[lo + 1] - tTab[lo]) : 0;
+                return sTab[lo] + u * ds;
+            }
         }
-        const i = lo;
-        const t0 = tTab[i];
-        const t1 = tTab[i + 1];
-        const u = t1 - t0 > 1e-12 ? (tt - t0) / (t1 - t0) : 0;
-        return sTab[i] + u * ds;
+        return totalLen;
     }
 
     return { totalTime, getPoseAtTime, getArcLengthAtTime };

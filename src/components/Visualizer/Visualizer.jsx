@@ -28,8 +28,15 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
     }, [displayedPaths]);
 
     const sampledPaths = useMemo(() => {
-        if (!engine) return [];
-        return displayedPaths.map((_, i) => engine.samplePath(i, 200));
+        if (!engine) return {};
+        const result = {};
+        let engineIdx = 0;
+        displayedPaths.forEach((item, i) => {
+            if (!item.type || item.type === 'path') {
+                result[i] = engine.samplePath(engineIdx++, 200);
+            }
+        });
+        return result;
     }, [engine, displayedPaths]);
 
     const scale = stageSize / 144;
@@ -49,6 +56,8 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
         };
     };
 
+    const isPathItem = (item) => !item.type || item.type === 'path';
+
     const handlePointDrag = (pathIdx, type, pointIdx, e) => {
         const { x, y } = toRoadRunner(e.target.x(), e.target.y());
         setDisplayedPaths(prev => {
@@ -57,12 +66,12 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
 
             if (type === "start") {
                 path.startPoint = [x, y, path.startPoint[2]];
-                if (pathIdx > 0) {
+                if (pathIdx > 0 && isPathItem(newPaths[pathIdx - 1])) {
                     newPaths[pathIdx - 1] = { ...newPaths[pathIdx - 1], endPoint: [x, y, newPaths[pathIdx - 1].endPoint[2]] };
                 }
             } else if (type === "end") {
                 path.endPoint = [x, y, path.endPoint[2]];
-                if (pathIdx < newPaths.length - 1) {
+                if (pathIdx < newPaths.length - 1 && isPathItem(newPaths[pathIdx + 1])) {
                     newPaths[pathIdx + 1] = { ...newPaths[pathIdx + 1], startPoint: [x, y, newPaths[pathIdx + 1].startPoint[2]] };
                 }
             } else if (type === "waypoint") {
@@ -153,11 +162,14 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
                     <Stage width={stageSize} height={stageSize}>
                         <Layer>
                             {/* Draw Paths */}
-                            {sampledPaths.map((path, i) => {
-                        const points = path.flatMap(p => {
-                            const {x, y} = toKonva(p.x, p.y);
-                            return [x, y];
-                        });
+                            {displayedPaths.map((item, i) => {
+                                if (item.type === 'wait') return null;
+                                const path = sampledPaths[i];
+                                if (!path) return null;
+                                const points = path.flatMap(p => {
+                                    const {x, y} = toKonva(p.x, p.y);
+                                    return [x, y];
+                                });
                                 return (
                                     <Line
                                         key={i}
@@ -171,7 +183,9 @@ function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosit
                             })}
 
                             {/* Draw Waypoints, Start and End points */}
-                            {displayedPaths.map((path, i) => {
+                            {displayedPaths.map((item, i) => {
+                        if (item.type === 'wait') return null;
+                        const path = item;
                         const start = toKonva(path.startPoint[0], path.startPoint[1]);
                         const end = toKonva(path.endPoint[0], path.endPoint[1]);
                                 return (

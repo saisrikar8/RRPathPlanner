@@ -1,0 +1,302 @@
+.export-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.export-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: rgba(5, 6, 7, 0.72);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.export-modal__panel {
+    position: relative;
+    z-index: 1;
+    width: min(640px, 100%);
+    max-height: min(92vh, 800px);
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--edge-strong);
+    border-radius: 10px;
+    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.8);
+    text-align: left;
+    overflow: hidden;
+}
+
+.export-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--edge);
+    flex-shrink: 0;
+    background: var(--surface);
+}
+
+.export-modal__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.export-modal__close {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.export-modal__close:hover {
+    color: var(--danger);
+    background: var(--danger-dim);
+}
+
+.export-modal__body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.export-modal__section-title {
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--signal);
+}
+
+.export-modal__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 320px;
+}
+
+.export-modal__label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.export-modal__input {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    background: var(--surface-raised);
+    color: var(--fg);
+    font-size: 13px;
+    transition: border-color 0.15s ease;
+}
+
+.export-modal__input:focus {
+    outline: none;
+    border-color: var(--signal);
+}
+
+.export-modal__code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.export-modal__copy-btn {
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.export-modal__copy-btn:hover {
+    color: var(--signal);
+    background: var(--signal-dim);
+}
+
+.export-modal__copy-btn--success {
+    color: var(--cyan);
+}
+
+.export-modal__code-wrapper {
+    position: relative;
+    border-radius: 6px;
+    border: 1px solid var(--edge);
+    background: var(--void);
+    overflow: hidden;
+}
+
+.export-modal__code-block {
+    margin: 0;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--fg-dim);
+    overflow: auto;
+    max-height: 400px;
+}
+
+.export-modal__code-block code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+.export-modal__footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--edge);
+    background: var(--surface);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.export-modal__done {
+    padding: 7px 18px;
+    border-radius: 5px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.export-modal__done:hover {
+    color: var(--fg);
+    background: var(--surface-raised);
+}
+
+/* ImportModal-specific overrides */
+
+.import-modal__panel {
+    width: min(680px, 100%);
+    max-height: min(92vh, 860px);
+}
+
+.import-modal__api-input {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: none;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+}
+
+.import-modal__hint {
+    margin: 6px 0 0;
+    font-size: 11px;
+    color: var(--muted);
+    opacity: 0.7;
+}
+
+.import-modal__code-textarea {
+    display: block;
+    width: 100%;
+    height: 260px;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--fg-dim);
+    caret-color: var(--signal);
+}
+
+.import-modal__code-textarea::placeholder {
+    color: var(--muted);
+    opacity: 0.45;
+}
+
+.import-modal__error {
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: var(--danger-dim);
+    color: var(--danger);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.import-modal__footer {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.import-modal__analyze-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    background: var(--signal);
+    color: #000;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.import-modal__analyze-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.import-modal__analyze-btn:not(:disabled):hover {
+    opacity: 0.88;
+}
+
+.import-modal__spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(0,0,0,0.3);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: import-spin 0.7s linear infinite;
+}
+
+@keyframes import-spin {
+    to { transform: rotate(360deg); }
+}
