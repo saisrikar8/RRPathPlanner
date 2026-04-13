@@ -21,6 +21,15 @@ function ImportModal({ open, onClose, setDisplayedPaths }) {
         return () => { document.body.style.overflow = prev; };
     }, [open]);
 
+    const getErrorHeader = () => {
+        if (!error) return null;
+        console.log(error)
+        if (error === "Too many requests. Please wait a bit and try again. This is meant to prevent abuse.") {
+            return (Math.random() > 0.5) ? "Whoa there, too spicy" : "Take a chill pill";
+        }
+        return (Math.random() > 0.5) ? "What was he thinking?" : "This ain't roadrunner code..";
+    }
+
     const handleAnalyze = async () => {
 
         setLoading(true);
@@ -37,10 +46,14 @@ function ImportModal({ open, onClose, setDisplayedPaths }) {
 
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
-                if (errData.error?.message.includes("prompt")) {
+                console.log(errData);
+                if (errData.message === "You have reached the maximum number of requests. Please wait and try again.") {
+                    setError("Too many requests. Please wait a bit and try again. This is meant to prevent abuse.");
+                }
+                else{
                     setError("We ran into some trouble analyzing your code. Please try again at a later time or fix your code.");
                 }
-                throw new Error(errData.error?.message);
+                return;
             }
 
             const data = await res.json();
@@ -52,12 +65,21 @@ function ImportModal({ open, onClose, setDisplayedPaths }) {
             } catch {
                 // Try extracting JSON array from the response if model added extra text
                 const match = raw.match(/\[[\s\S]*\]/);
-                if (!match) throw new Error('Could not parse response as JSON. Try again or check your code.');
-                parsed = JSON.parse(match[0]);
+                if (!match) {
+                    setError('Could not parse response as JSON. Try again or check your code.');
+                    return;
+                }
+                try {
+                    parsed = JSON.parse(match[0]);
+                } catch {
+                    setError('Could not parse response as JSON. Try again or check your code.');
+                    return;
+                }
             }
 
             if (!Array.isArray(parsed) || parsed.length === 0) {
-                throw new Error('No path data found in the response. Make sure the code contains a trajectory.');
+                setError('No path data found in the response. Make sure the code contains a trajectory.');
+                return;
             }
             let count = -1;
             const items = parsed.map((item) => {
@@ -73,7 +95,10 @@ function ImportModal({ open, onClose, setDisplayedPaths }) {
             setCode('');
             setError('');
             onClose();
-        }finally {
+        } catch (err) {
+            console.error(err);
+            setError("We ran into some trouble analyzing your code. Please try again at a later time or fix your code.");
+        } finally {
             setLoading(false);
         }
     };
@@ -106,11 +131,11 @@ function ImportModal({ open, onClose, setDisplayedPaths }) {
 
                 <div className="export-modal__body">
 
-                    <section className="export-modal__section export-modal__section--code">
+                    <section className="export-modal__section export-modal__section--code import-modal__section">
                         <div className="export-modal__code-header">
                             <h3 className="export-modal__label">Paste OpMode Java Code</h3>
                         </div>
-                        <div className="export-modal__code-wrapper">
+                        <div className="export-modal__code-wrapper import-modal__code-wrapper">
                             <textarea
                                 className="import-modal__code-textarea"
                                 placeholder={"// Paste your FTC autonomous OpMode here\n// e.g. drive.actionBuilder(startPose)\n//     .splineTo(new Vector2d(24, 24), Math.toRadians(90))\n//     .build();"}
@@ -119,8 +144,13 @@ function ImportModal({ open, onClose, setDisplayedPaths }) {
                                 spellCheck={false}
                             />
                         </div>
-                        <div className="export-modal__code-header">
-                            <h5 style = {{marginLeft: "1vw", color: "#c31a1a"}}>{error}</h5>
+                        <div className="import-modal__error-container">
+                            {error && (
+                                <div className="import-modal__error">
+                                    <h4 className="import-modal__error-header">{getErrorHeader()}</h4>
+                                    <p className="import-modal__error-message">{error}</p>
+                                </div>
+                            )}
                         </div>
                     </section>
 
