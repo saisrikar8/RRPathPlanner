@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import {Groq} from "groq-sdk";
+import {configDotenv} from "dotenv";
 
 const SYSTEM_PROMPT = `You are an FTC RoadRunner API path extractor. Given Java OpMode code, extract the autonomous path as a JSON array.
 
@@ -22,8 +23,8 @@ Extraction rules:
 - endHeading for linear: the heading value h from Pose2d(x,y,Math.toRadians(h))
 
 Return ONLY the raw JSON array. No explanation, no markdown, no code fences.`;
-
-const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+configDotenv();
+const apiKey = process.env.VITE_GROQ_API_KEY;
 const groq = new Groq({apiKey: apiKey})
 
 function groqProxyPlugin() {
