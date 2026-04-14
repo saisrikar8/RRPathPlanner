@@ -8,6 +8,7 @@ import {MotionEngine, buildDriveTimeProfile} from "./components/MotionEngine.js"
 import MotionParamsModal from "./components/MotionParamsModal/MotionParamsModal.jsx";
 import ExportModal from "./components/ExportModal/ExportModal.jsx";
 import ImportModal from "./components/ImportModal/ImportModal.jsx";
+import { Analytics } from "@vercel/analytics/next"
 
 const DEFAULT_MOTION = {
     maxVel: 50,
@@ -93,6 +94,7 @@ function App() {
 
     return (
         <div className="app-root">
+            <Analytics></Analytics>
             <Header 
                 onOpenMotion={() => setMotionModalOpen(true)}
                 onOpenExport={() => setExportModalOpen(true)}
