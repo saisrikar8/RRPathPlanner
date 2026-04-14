@@ -17,7 +17,7 @@ function Header({ onOpenMotion, onOpenExport, onOpenImport }) {
                     onClick={onOpenImport}
                     title="Import Code"
                 >
-                    <img src = "/import.svg" style = {{filter: "invert(1)"}}/>
+                    <img src = "/import.svg" width = "20px" height = "20px" style = {{filter: "invert(1)"}}/>
                 </button>
                 <button 
                     type="button" 
