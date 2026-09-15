@@ -9,7 +9,7 @@ A browser-based path planner and visualizer for [FTC RoadRunner](https://rr.brot
 - **Visual path editor** — draw and drag spline waypoints directly on the FTC field image (`react-konva`), with tangent/constant/linear heading interpolation per segment
 - **Motion simulation** — `MotionEngine.js` arc-length-parameterizes each spline and builds a drive-time profile under velocity/acceleration/friction constraints, so the playback scrubber reflects how the robot would actually move, not just geometric time
 - **Java export** — generates a RoadRunner `Actions.runBlocking()` OpMode from the current path set, ready to paste into an FTC project
-- **AI-assisted import** — paste existing RoadRunner Java code and an LLM (Groq, `llama-4-scout`) extracts the path back into editable segments, so you can reverse-engineer or tweak someone else's autonomous
+- **AI-assisted import** — paste existing RoadRunner Java code and an LLM (Groq, `openai/gpt-oss-120b`) extracts the path back into editable segments, so you can reverse-engineer or tweak someone else's autonomous
 - **Playback bar** — scrub through the simulated run, watch the robot's pose animate along the path in real time
 
 ## Stack
@@ -17,7 +17,7 @@ A browser-based path planner and visualizer for [FTC RoadRunner](https://rr.brot
 - React 19 + Vite, `react-konva` for the canvas
 - `framer-motion` for UI transitions
 - Express backend (`index.cjs`) handling the Groq API call, with a MongoDB-backed rate limiter (JWT cookie identifies the client, capped requests per token)
-- Deployed as a Vercel serverless function (`api/groq/chat.js` mirrors the same handler for production)
+- Deployed as a Vercel serverless function (`api/groq/chat.js` shares its handler with the local server)
 
 ## Project layout
 
@@ -40,7 +40,9 @@ npm install
 
 ```bash
 # .env
-VITE_GROQ_API_KEY=your-groq-api-key
+GROQ_API_KEY=your-groq-api-key
+# Optional: override the default model with one available to your Groq account
+GROQ_MODEL=openai/gpt-oss-120b
 MONGODB_CONNECTION_STR=your-mongodb-password
 JWT_SIGN_KEY=any-random-string
 ```

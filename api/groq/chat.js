@@ -1,6 +1,55 @@
 import { Groq } from "groq-sdk"
 
-const SYSTEM_PROMPT = `You are an FTC RoadRunner API path extractor. Given Java OpMode code, extract the autonomous path as a JSON array.
+const POINT_SCHEMA = {
+    type: "array",
+    items: {type: "number"},
+    minItems: 3,
+    maxItems: 3,
+};
+
+const IMPORT_SCHEMA = {
+    type: "object",
+    properties: {
+        imported_paths: {
+            type: "array",
+            items: {
+                anyOf: [
+                    {
+                        type: "object",
+                        properties: {
+                            type: {type: "string", enum: ["path"]},
+                            startPoint: POINT_SCHEMA,
+                            endPoint: POINT_SCHEMA,
+                            waypoints: {type: "array", items: POINT_SCHEMA},
+                            headingInterpolation: {
+                                type: "string",
+                                enum: ["tangent", "constant", "linear"],
+                            },
+                            startHeading: {type: ["number", "null"]},
+                            endHeading: {type: ["number", "null"]},
+                        },
+                        required: ["type", "startPoint", "endPoint", "waypoints",
+                            "headingInterpolation", "startHeading", "endHeading"],
+                        additionalProperties: false,
+                    },
+                    {
+                        type: "object",
+                        properties: {
+                            type: {type: "string", enum: ["wait"]},
+                            duration: {type: "number", minimum: 0},
+                        },
+                        required: ["type", "duration"],
+                        additionalProperties: false,
+                    },
+                ],
+            },
+        },
+    },
+    required: ["imported_paths"],
+    additionalProperties: false,
+};
+
+const SYSTEM_PROMPT = `You are an FTC RoadRunner API path extractor. Given Java OpMode code, extract the autonomous path as a JSON object with an "imported_paths" array.
 
 Each element is either a path segment or a wait:
 - Path: {"type":"path","startPoint":[x,y,tangentDeg],"endPoint":[x,y,tangentDeg],"waypoints":[],"headingInterpolation":"tangent"|"constant"|"linear","startHeading":null,"endHeading":null}
@@ -19,24 +68,26 @@ Extraction rules:
 - startHeading for constant: use the heading from the Pose2d that started this trajectory builder chain, or the last known heading
 - endHeading for linear: the heading value h from Pose2d(x,y,Math.toRadians(h))
 
-Return ONLY the raw JSON array. No explanation, no markdown, no code fences.`;
-
-const apiKey = process.env.VITE_GROQ_API_KEY;
-const groq = new Groq({apiKey: apiKey})
+Return ONLY the raw JSON object: {"imported_paths":[...]}. No explanation, no markdown, no code fences.`;
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({error: 'Method not allowed'});
     }
 
+    const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
     if (!apiKey) {
         return res.status(500).json({
-            error: {message: 'Missing GROQ_API_KEY in Vercel env'},
+            error: {message: 'Missing GROQ_API_KEY in server environment'},
         })
     }
 
     try {
-        const {prompt} = req.body;
+        const {prompt} = req.body || {};
+        if (typeof prompt !== 'string' || !prompt.trim()) {
+            return res.status(400).json({error: {message: 'A non-empty prompt is required'}});
+        }
+        const groq = new Groq({apiKey});
 
         const chatCompletion = await groq.chat.completions.create({
             messages: [
@@ -49,71 +100,22 @@ export default async function handler(req, res) {
                     content: prompt,
                 },
             ],
-            model: "meta-llama/llama-4-scout-17b-16e-instruct",
+            model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
             response_format: {
-                type: "json_object",
-                json_object: {
+                type: "json_schema",
+                json_schema: {
                     name: "imported_code",
-                    schema: {
-                        properties: {
-                            imported_paths: {
-                                type: "array",
-                                items: {
-                                    type: "object",
-                                    properties: {
-                                        pathType: {
-                                            type: "string",
-                                            enum: ["wait", "path"]
-                                        },
-                                        startPoint: {
-                                            type: "array",
-                                            items: {
-                                                type: "number",
-                                            },
-                                            minItems: 3,
-                                            maxItems: 3
-                                        },
-                                        endPoint: {
-                                            type: "array",
-                                            items: {
-                                                type: "number",
-                                            },
-                                            minItems: 3,
-                                            maxItems: 3
-                                        },
-                                        waypoints: {
-                                            type: "array",
-                                            items: {
-                                                type: "number"
-                                            }
-                                        },
-                                        headingInterpolation: {
-                                            type: "string",
-                                            enum: ["tangent", "constant", "linear"]
-                                        },
-                                        startHeading: {
-                                            type: ["number", "null"]
-                                        },
-                                        endHeading: {
-                                            type: ["number", "null"]
-                                        },
-                                        duration: {
-                                            type: "number",
-                                        }
-                                    },
-                                    required: ["pathType"],
-                                    additionalProperties: false
-                                }
-                            }
-                        },
-                        required: ["imported_paths"],
-                        additionalProperties: false
-                    }
+                    strict: true,
+                    schema: IMPORT_SCHEMA,
                 },
-                required: ["imported_code"]
             }
         });
-        return res.status(200).json({chat_response: chatCompletion.choices[0]?.message?.content});
+        const parsed = JSON.parse(chatCompletion.choices[0]?.message?.content);
+        const paths = Array.isArray(parsed) ? parsed : parsed?.imported_paths;
+        if (!Array.isArray(paths)) {
+            return res.status(502).json({error: {message: 'Groq returned an invalid path response'}});
+        }
+        return res.status(200).json({chat_response: JSON.stringify(paths)});
     } catch (err) {
         return res.status(500).json({error: {message: err.message}});
     }
