@@ -2,7 +2,7 @@ import "./Visualizer.css";
 import { Layer, Stage, Line, Rect, Group, Circle, Arrow } from "react-konva";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MotionEngine } from "../MotionEngine.js";
-import fieldImg from '../../assets/field-2025-juice-dark.png';
+import fieldImg from '../../assets/field-biobuzz.webp';
 
 function Visualizer({ displayedPaths, setDisplayedPaths, isPlaying, currentPosition }) {
     const measureRef = useRef(null);
