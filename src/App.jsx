@@ -21,8 +21,18 @@ const DEFAULT_MOTION = {
 };
 
 function App() {
-    const [displayedPaths, setDisplayedPaths] = useState([]);
-    const [currentPosition, setCurrentPosition] = useState([0,0,0]);
+    // An editable starter curve makes dragging, playback, and export discoverable.
+    const [displayedPaths, setDisplayedPaths] = useState(() => [{
+        id: 0,
+        type: 'path',
+        startPoint: [-48, -48, 0],
+        endPoint: [36, -36, 0],
+        waypoints: [],
+        headingInterpolation: 'tangent',
+        startHeading: null,
+        endHeading: null,
+    }]);
+    const [currentPosition, setCurrentPosition] = useState([-48, -48, 0]);
     const [isPlaying, setIsPlaying] = useState(false);
     const [progress, setProgress] = useState(0); // 0–1000 → normalized time along profile
     const [motionConstraints, setMotionConstraints] = useState(DEFAULT_MOTION);
